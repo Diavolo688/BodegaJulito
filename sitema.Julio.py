@@ -1,17 +1,14 @@
+nombres = [
+    "leche",
+    "arroz",
+    "aceite",
+    "galleta picara",
+    "coca cola 1.5 litros",
+    "inka kola 1.5 litros"
+]
 
-"""
-SISTEMA DE BODEGA
-Version: v0.2.0-beta
-Gestion de productos (CRUD)
-"""
-
-# Datos iniciales
-nombres = ["leche", "arroz", "aceite"]
-precios = [4.50, 3.80, 11.00]
-stocks = [15, 30, 10]
-
-ventas = []
-total_ventas = 0.0
+precios = [4.50, 3.80, 11.00, 1.00, 7.00, 7.00]
+stocks = [15, 30, 10, 10, 10, 10]
 
 
 def buscar(nombre):
@@ -22,27 +19,34 @@ def buscar(nombre):
 
 
 def consultar():
-    print("\n--- PRODUCTOS DISPONIBLES ---")
-
+    print("\n--- PRODUCTOS ---")
     for i in range(len(nombres)):
-        print(
-            "Producto:", nombres[i],
-            "| Precio: S/", precios[i],
-            "| Stock:", stocks[i]
-        )
+        print("Producto:", nombres[i],
+              "| Precio: S/", precios[i],
+              "| Stock:", stocks[i])
 
 
 def agregar():
-    print("\n--- AGREGAR PRODUCTO ---")
+    if len(nombres) >= 6:
+        print("No se pueden agregar mas de 6 productos.")
+        return
 
-    nombre = input("Nombre del producto: ").strip()
+    nombre = input("Nombre del producto: ")
 
     if buscar(nombre) != -1:
         print("Ese producto ya existe.")
         return
 
     precio = float(input("Precio: "))
-    stock = int(input("Stock inicial: "))
+    stock = int(input("Stock inicial (minimo 10): "))
+
+    if precio <= 0:
+        print("El precio debe ser mayor que cero.")
+        return
+
+    if stock < 10:
+        print("El stock inicial debe ser minimo 10.")
+        return
 
     nombres.append(nombre)
     precios.append(precio)
@@ -52,8 +56,6 @@ def agregar():
 
 
 def actualizar():
-    print("\n--- ACTUALIZAR PRODUCTO ---")
-
     nombre = input("Nombre del producto a actualizar: ")
     i = buscar(nombre)
 
@@ -68,21 +70,27 @@ def actualizar():
 
     if opcion == "1":
         nuevo_precio = float(input("Nuevo precio: "))
-        precios[i] = nuevo_precio
-        print("Precio actualizado correctamente.")
+
+        if nuevo_precio > 0:
+            precios[i] = nuevo_precio
+            print("Precio actualizado.")
+        else:
+            print("El precio debe ser mayor que cero.")
 
     elif opcion == "2":
-        nuevo_stock = int(input("Nuevo stock: "))
-        stocks[i] = nuevo_stock
-        print("Stock actualizado correctamente.")
+        nuevo_stock = int(input("Nuevo stock (minimo 10): "))
+
+        if nuevo_stock >= 10:
+            stocks[i] = nuevo_stock
+            print("Stock actualizado.")
+        else:
+            print("El stock debe ser minimo 10.")
 
     else:
         print("Opcion invalida.")
 
 
 def eliminar():
-    print("\n--- ELIMINAR PRODUCTO ---")
-
     nombre = input("Nombre del producto a eliminar: ")
     i = buscar(nombre)
 
@@ -97,50 +105,14 @@ def eliminar():
     print("Producto eliminado correctamente.")
 
 
-def vender():
-    global total_ventas
-
-    print("\n--- VENTA (ALPHA) ---")
-
-    nombre = input("Nombre del producto a vender: ")
-    i = buscar(nombre)
-
-    if i != -1:
-        cantidad = int(input("Cantidad: "))
-        total = precios[i] * cantidad
-
-        stocks[i] -= cantidad
-        total_ventas += total
-        ventas.append([nombres[i], cantidad, total])
-
-        print("Venta registrada. Total: S/", round(total, 2))
-    else:
-        print("Producto no encontrado.")
-
-
-def reporte_ventas():
-    print("\n--- REGISTRO DE VENTAS ---")
-
-    for venta in ventas:
-        print(
-            "Producto:", venta[0],
-            "| Cantidad:", venta[1],
-            "| Total: S/", round(venta[2], 2)
-        )
-
-    print("Total acumulado: S/", round(total_ventas, 2))
-
-
 def main():
     while True:
-        print("\n===== SISTEMA DE BODEGA (v0.2.0-beta) =====")
+        print("\n===== SISTEMA DE BODEGA =====")
         print("1. Consultar productos")
         print("2. Agregar producto")
         print("3. Actualizar producto")
         print("4. Eliminar producto")
-        print("5. Vender producto")
-        print("6. Registro de ventas")
-        print("7. Salir")
+        print("5. Salir")
 
         opcion = input("Elige una opcion: ")
 
@@ -153,10 +125,6 @@ def main():
         elif opcion == "4":
             eliminar()
         elif opcion == "5":
-            vender()
-        elif opcion == "6":
-            reporte_ventas()
-        elif opcion == "7":
             print("Programa finalizado.")
             break
         else:
