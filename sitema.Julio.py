@@ -89,6 +89,33 @@ def actualizar():
     else:
         print("Opcion invalida.")
 
+def vender():
+    nombre = input("Nombre del producto a vender: ")
+    i = buscar(nombre)
+
+    if i == -1:
+        print("Producto no encontrado.")
+        return
+
+    cantidad = int(input(f"Cantidad a vender (Stock actual: {stocks[i]}): "))
+
+    if cantidad <= 0:
+        print("La cantidad debe ser mayor a cero.")
+        return
+
+    if cantidad > stocks[i]:
+        print(f"Stock insuficiente. Solo quedan {stocks[i]} unidades disponibles.")
+        return
+
+    stocks[i] -= cantidad
+    total = cantidad * precios[i]
+
+    print(f"\n¡Venta realizada con éxito!")
+    print(f"Producto: {nombres[i]}")
+    print(f"Unidades vendidas: {cantidad}")
+    print(f"Total a pagar: S/ {total:.2f}")
+    print(f"Stock restante: {stocks[i]}")
+
 
 def eliminar():
     nombre = input("Nombre del producto a eliminar: ")
@@ -112,7 +139,8 @@ def main():
         print("2. Agregar producto")
         print("3. Actualizar producto")
         print("4. Eliminar producto")
-        print("5. Salir")
+        print("5. Vender producto")
+        print("6. Salir")
 
         opcion = input("Elige una opcion: ")
 
@@ -125,6 +153,8 @@ def main():
         elif opcion == "4":
             eliminar()
         elif opcion == "5":
+            vender()
+        elif opcion == "6":
             print("Programa finalizado.")
             break
         else:
