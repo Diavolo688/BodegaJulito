@@ -10,6 +10,8 @@ nombres = [
 precios = [4.50, 3.80, 11.00, 1.00, 7.00, 7.00]
 stocks = [15, 30, 10, 10, 10, 10]
 
+ventas = []
+total_ventas = 0.0
 
 def buscar(nombre):
     for i in range(len(nombres)):
@@ -90,6 +92,9 @@ def actualizar():
         print("Opcion invalida.")
 
 def vender():
+
+    global total_ventas
+
     nombre = input("Nombre del producto a vender: ")
     i = buscar(nombre)
 
@@ -109,6 +114,9 @@ def vender():
 
     stocks[i] -= cantidad
     total = cantidad * precios[i]
+
+    total_ventas = total_ventas + total
+    ventas.append([nombres[i], cantidad, total])
 
     print(f"\n¡Venta realizada con éxito!")
     print(f"Producto: {nombres[i]}")
@@ -131,6 +139,20 @@ def eliminar():
 
     print("Producto eliminado correctamente.")
 
+def reporte_ventas():
+    print("\n--- REGISTRO DE VENTAS ---")
+
+    if len(ventas) == 0:
+        print("Todavia no hay ventas registradas.")
+        return
+
+    for venta in ventas:
+        print("Producto:", venta[0],
+              "| Cantidad:", venta[1],
+              "| Total: S/", round(venta[2], 2))
+
+    print("--------------------------------")
+    print("Total de ventas: S/", round(total_ventas, 2))
 
 def main():
     while True:
@@ -140,7 +162,8 @@ def main():
         print("3. Actualizar producto")
         print("4. Eliminar producto")
         print("5. Vender producto")
-        print("6. Salir")
+        print("6. Registro de ventas")
+        print("7. Salir")
 
         opcion = input("Elige una opcion: ")
 
@@ -155,6 +178,8 @@ def main():
         elif opcion == "5":
             vender()
         elif opcion == "6":
+            reporte_ventas()
+        elif opcion == "7":
             print("Programa finalizado.")
             break
         else:
