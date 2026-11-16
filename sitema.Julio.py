@@ -1,3 +1,4 @@
+
 nombres = [
     "leche",
     "arroz",
@@ -19,125 +20,181 @@ def buscar(nombre):
             return i
     return -1
 
+def mostrar_productos():
+    print("\n--- PRODUCTOS DISPONIBLES ---")
+
+    if len(nombres) == 0:
+        print("No hay productos registrados.")
+        return False
+
+    print("-" * 60)
+    print(f"{'N.':<5}{'PRODUCTO':<27}{'PRECIO':<13}{'STOCK'}")
+    print("-" * 60)
+
+    for i in range(len(nombres)):
+        print(f"{i + 1:<5}{nombres[i]:<27}S/ {precios[i]:<10.2f}{stocks[i]}")
+
+    print("-" * 60)
+    return True
+
+def seleccionar_producto():
+    if not mostrar_productos():
+        return -1
+
+    while True:
+        opcion = input("\nSeleccione el producto (0 para volver): ")
+
+        if opcion == "0":
+            return -1
+
+        if not opcion.isdigit():
+            print("Ingrese un numero valido.")
+            continue
+
+        numero = int(opcion)
+
+        if numero < 1 or numero > len(nombres):
+            print("Numero de producto no valido.")
+            continue
+
+        return numero - 1
+
+def leer_precio(mensaje):
+    while True:
+        try:
+            precio = float(input(mensaje))
+
+            if precio <= 0:
+                print("El precio debe ser mayor que cero.")
+                continue
+
+            return precio
+
+        except ValueError:
+            print("Ingrese un precio numerico valido.")
+
+def leer_entero(mensaje, minimo=0):
+    while True:
+        try:
+            numero = int(input(mensaje))
+
+            if numero < minimo:
+                print(f"El valor minimo permitido es {minimo}.")
+                continue
+
+            return numero
+
+        except ValueError:
+            print("Ingrese un numero entero valido.")
 
 def consultar():
-    print("\n--- PRODUCTOS ---")
-    for i in range(len(nombres)):
-        print("Producto:", nombres[i],
-              "| Precio: S/", precios[i],
-              "| Stock:", stocks[i])
-
+    mostrar_productos()
 
 def agregar():
-    if len(nombres) >= 6:
-        print("No se pueden agregar mas de 6 productos.")
-        return
+    print("\n--- AGREGAR PRODUCTO ---")
 
-    nombre = input("Nombre del producto: ")
+    nombre = input("Nombre del producto: ").strip()
+
+    if nombre == "":
+        print("El nombre no puede estar vacio.")
+        return
 
     if buscar(nombre) != -1:
         print("Ese producto ya existe.")
         return
 
-    precio = float(input("Precio: "))
-    stock = int(input("Stock inicial (minimo 10): "))
+    precio = leer_precio("Precio: S/ ")
+    stock = leer_entero("Stock inicial (minimo 10): ", 10)
 
-    if precio <= 0:
-        print("El precio debe ser mayor que cero.")
-        return
-
-    if stock < 10:
-        print("El stock inicial debe ser minimo 10.")
-        return
-
-    nombres.append(nombre)
+    nombres.append(nombre.lower())
     precios.append(precio)
     stocks.append(stock)
 
-    print("Producto agregado correctamente.")
-
+    print("\nProducto agregado correctamente.")
 
 def actualizar():
-    nombre = input("Nombre del producto a actualizar: ")
-    i = buscar(nombre)
+    print("\n--- ACTUALIZAR PRODUCTO ---")
+
+    i = seleccionar_producto()
 
     if i == -1:
-        print("Producto no encontrado.")
+        print("Operacion cancelada.")
         return
 
+    print(f"\nProducto seleccionado: {nombres[i]}")
     print("1. Actualizar precio")
     print("2. Actualizar stock")
+    print("0. Volver")
 
     opcion = input("Elige una opcion: ")
 
     if opcion == "1":
-        nuevo_precio = float(input("Nuevo precio: "))
-
-        if nuevo_precio > 0:
-            precios[i] = nuevo_precio
-            print("Precio actualizado.")
-        else:
-            print("El precio debe ser mayor que cero.")
+        precios[i] = leer_precio("Nuevo precio: S/ ")
+        print("Precio actualizado correctamente.")
 
     elif opcion == "2":
-        nuevo_stock = int(input("Nuevo stock (minimo 10): "))
+        stocks[i] = leer_entero("Nuevo stock: ", 0)
+        print("Stock actualizado correctamente.")
 
-        if nuevo_stock >= 10:
-            stocks[i] = nuevo_stock
-            print("Stock actualizado.")
-        else:
-            print("El stock debe ser minimo 10.")
+    elif opcion == "0":
+        print("Operacion cancelada.")
 
     else:
         print("Opcion invalida.")
 
-def vender():
+def eliminar():
+    print("\n--- ELIMINAR PRODUCTO ---")
 
+    i = seleccionar_producto()
+
+    if i == -1:
+        print("Operacion cancelada.")
+        return
+
+    print(f"\nProducto seleccionado: {nombres[i]}")
+    confirmacion = input("¿Esta seguro de eliminarlo? (S/N): ").strip().lower()
+
+    if confirmacion == "s":
+        nombres.pop(i)
+        precios.pop(i)
+        stocks.pop(i)
+        print("Producto eliminado correctamente.")
+    else:
+        print("Eliminacion cancelada.")
+
+def vender():
     global total_ventas
 
-    nombre = input("Nombre del producto a vender: ")
-    i = buscar(nombre)
+    print("\n--- REGISTRAR VENTA ---")
+
+    i = seleccionar_producto()
 
     if i == -1:
-        print("Producto no encontrado.")
+        print("Operacion cancelada.")
         return
 
-    cantidad = int(input(f"Cantidad a vender (Stock actual: {stocks[i]}): "))
-
-    if cantidad <= 0:
-        print("La cantidad debe ser mayor a cero.")
+    if stocks[i] == 0:
+        print("Este producto no tiene stock disponible.")
         return
+
+    print(f"\nProducto: {nombres[i]}")
+    print(f"Precio unitario: S/ {precios[i]:.2f}")
+    print(f"Stock disponible: {stocks[i]}")
+
+    cantidad = leer_entero("Cantidad a vender: ", 1)
 
     if cantidad > stocks[i]:
-        print(f"Stock insuficiente. Solo quedan {stocks[i]} unidades disponibles.")
+        print(f"Stock insuficiente. Solo quedan {stocks[i]} unidades.")
         return
 
-    stocks[i] -= cantidad
     total = cantidad * precios[i]
-
-    total_ventas = total_ventas + total
+    stocks[i] -= cantidad
+    total_ventas += total
     ventas.append([nombres[i], cantidad, total])
 
-    print(f"\n¡Venta realizada con éxito!")
-    print(f"Producto: {nombres[i]}")
-    print(f"Unidades vendidas: {cantidad}")
+    print("\n¡Venta realizada con exito!")
     print(f"Total a pagar: S/ {total:.2f}")
     print(f"Stock restante: {stocks[i]}")
-
-
-def eliminar():
-    nombre = input("Nombre del producto a eliminar: ")
-    i = buscar(nombre)
-
-    if i == -1:
-        print("Producto no encontrado.")
-        return
-
-    nombres.pop(i)
-    precios.pop(i)
-    stocks.pop(i)
-
-    print("Producto eliminado correctamente.")
 
 def reporte_ventas():
     print("\n--- REGISTRO DE VENTAS ---")
@@ -147,12 +204,14 @@ def reporte_ventas():
         return
 
     for venta in ventas:
-        print("Producto:", venta[0],
-              "| Cantidad:", venta[1],
-              "| Total: S/", round(venta[2], 2))
+        print(
+            f"Producto: {venta[0]} | "
+            f"Cantidad: {venta[1]} | "
+            f"Total: S/ {venta[2]:.2f}"
+        )
 
-    print("--------------------------------")
-    print("Total de ventas: S/", round(total_ventas, 2))
+    print("-" * 55)
+    print(f"TOTAL DE VENTAS: S/ {total_ventas:.2f}")
 
 def main():
     while True:
@@ -184,7 +243,6 @@ def main():
             break
         else:
             print("Opcion invalida.")
-
 
 if __name__ == "__main__":
     main()
